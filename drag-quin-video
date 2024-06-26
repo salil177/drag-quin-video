@@ -1,0 +1,282 @@
+Add/render the popup snippet in the theme.liquid
+add above the scripts
+
+<style>
+.mypopupvideo {
+    position: fixed;
+    bottom: 12rem;
+    right: 10rem;
+   z-index:99;
+          width: 150px !important;
+}
+a.videobtn video {
+    width: 70px;
+    height: 70px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+span.popclose {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: white !important;
+    background-color: rgba(4, 4, 4, 0.9) !important;
+    font-weight: bold;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+    font-size: 18px;
+  cursor: pointer;
+}
+a.videobtn {
+    display: block;
+}
+.mainpopvideo video {
+    width: 100px;
+  border-radius: 20px;
+}
+
+.mainpopvideo{
+  width: 100px;
+  position: relative;
+    display: block;
+}
+
+
+span.popclosemain {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #000;
+    width: 25px;
+    height: 25px;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+  cursor: pointer;
+}
+span.popclosemain {
+    position: absolute;
+    top: -25px;
+    right: -25px;
+    background: #000;
+    width: 25px;
+    height: 25px;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+}
+
+.additional-discount{
+  display:none;
+}
+
+@media only screen and (max-width:799px){
+  .mypopupvideo {
+    position: fixed;
+    bottom: 4rem;
+    right: 1rem;
+    left: 1rem;
+    z-index: 99;
+}
+
+  span.popclosemain{
+        position: relative !important;
+    left: 4rem;
+            top: -5px !important;
+  }
+}
+</style>
+
+{% if product.metafields.custom.video != blank %}
+<div class="mypopupvideo">
+   <div class="mainpopvideo">
+    <span class="popclosemain pop-close-new">x</span>
+    {{ product.metafields.custom.video | media_tag: autoplay: true, loop: true, muted: true , controls:false  }}
+  </div>
+</div>
+  {% endif %}
+
+  <script>
+
+    const videoss = document.querySelector(".mainpopvideo video");
+    console.log(videoss)
+
+// Show controls when the video is clicked
+videoss.addEventListener('click', () => {
+    videoss.setAttribute('controls', 'controls');
+  console.log(clicked);
+});
+
+// Hide controls when the video loses focus
+videoss.addEventListener('blur', () => {
+    videoss.removeAttribute('controls');
+});
+
+// Hide controls when clicking outside the video
+document.addEventListener('click', (event) => {
+    if (event.target !== videoss) {
+        videoss.removeAttribute('controls');
+    }
+});
+    
+  </script>
+
+
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"
+      integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"
+      integrity="sha512-XtmMtDEcNz2j7ekrtHvOVR4iwwaD6o/FUJe6+Zq+HgcCsk3kj4uSQQR8weQ2QVj1o0Pk6PwYLohm206ZzNfubg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+      <script src='https://assets.codepen.io/16327/gsap-latest-beta.min.js?v=1234'></script>
+<script src='https://assets.codepen.io/16327/Observer.min.js?v=1234'></script>
+  
+
+<script>
+      {% if product.metafields.custom.video != blank %}
+    gsap.registerPlugin(Observer);
+
+let roots = document.documentElement;
+let item = document.querySelector(".mypopupvideo");
+let setItem = gsap.quickSetter(item, "css");
+let isPressed = false;
+let edgeSize = Observer.isTouch ? 40 : 20;
+let edgeX = "";
+let edgeY = "";
+
+let cursors = {
+  default: "grab",
+  dragging: "grabbing",
+  top: "ns-resize",
+  left: "ew-resize",
+  bottom: "ns-resize",
+  right: "ew-resize",
+  topleft: "nwse-resize",
+  bottomright: "nwse-resize",
+  topright: "nesw-resize",
+  bottomleft: "nesw-resize"
+};
+
+let observer = Observer.create({
+  type: "touch,pointer",
+  target: item,
+  onPress(self) {
+    onMove(self);
+    isPressed = true;
+    updateCursor();
+  },
+  onRelease() {
+    isPressed = false;
+    updateCursor();
+  },
+  onMove,
+  onDrag(self) {    
+    
+    // we're dragging the item
+    if (!edgeX && !edgeY) {
+      return setItem({
+        x: `+=${self.deltaX}`,
+        y: `+=${self.deltaY}`,
+      });
+    }
+        
+    let css = {};
+    let bounds = item.getBoundingClientRect();   
+        
+    // swap edges to invert resizing
+    if (edgeX === "right" && self.x < bounds.left) {
+      edgeX = "left";
+    } else if (edgeX === "left" && self.x > bounds.right) {
+      edgeX = "right";
+    }
+    
+    if (edgeY === "bottom" && self.y < bounds.top) {
+      edgeY = "top";
+    } else if (edgeY === "top" && self.y > bounds.bottom) {
+      edgeY = "bottom";
+    }
+        
+    let deltaX = self.x - (edgeX === "left" ? bounds.left : bounds.right);
+    let deltaY = self.y - (edgeY === "top" ? bounds.top : bounds.bottom);
+    
+    if (edgeX === "right") {
+      css.width = `+=${deltaX}`;
+    } else if (edgeX === "left") {
+      css.width = `+=${-deltaX}`;
+      css.x = `+=${deltaX}`;
+    }
+    
+    if (edgeY === "bottom") {      
+      css.height = `+=${deltaY}`;      
+    } else if (edgeY === "top") {
+      css.height = `+=${-deltaY}`;
+      css.y = `+=${deltaY}`;
+    }
+    
+    setItem(css);
+  }
+});
+
+updateCursor();
+
+function onMove(self) {
+    
+  if (isPressed) return;
+  
+  let bounds = item.getBoundingClientRect();
+  
+  let x = self.x - bounds.left;
+  let y = self.y - bounds.top;
+  
+  edgeX = "";
+  edgeY = "";
+  
+  if (x <= edgeSize) {
+    edgeX = "left";
+  } else if (bounds.width - x <= edgeSize) {
+    edgeX = "right";
+  }
+  
+  if (y <= edgeSize) {
+    edgeY = "top";
+  } else if (bounds.height - y <= edgeSize) {
+    edgeY = "bottom";
+  }
+    
+  updateCursor();
+}
+
+function updateCursor() {
+  
+  let currentEdge = edgeY + edgeX;
+  let cursor = cursors[currentEdge ? currentEdge : (isPressed ? "dragging" : "default")];
+  
+  item.style.cursor = cursor; 
+  roots.style.cursor = isPressed ? cursor : "unset";
+}
+      {% endif %}
+
+ let closePopup = document.querySelector(".pop-close-new");
+let fullPopup = document.querySelector(".mypopupvideo");
+
+   
+   closePopup.addEventListener("click", ()=>{
+
+    fullPopup.style.display = "none";
+  })
+</script>
